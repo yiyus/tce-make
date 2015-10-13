@@ -4,7 +4,7 @@
 # -- Jesus Galan (yiyus) 2015
 
 if [ $# -gt 1 ]; then
-	"$0" "$1"
+	"$0" "$1" || exit 1
 	shift
 	echo
 	exec "$0" "$@"
@@ -100,6 +100,10 @@ for info in "$name"*.info; do
 	tcz="$dir".tcz
 
 	# make tcz
+	if [ ! -d "$dir" ]; then
+		echo3 "ERROR: $dir/ not found. Cannot create $tcz"
+		exit 1
+	fi
 	mksquashfs "$dir" "$tcz" -all-root && echo3 "$tcz"
 
 	# md5, list and info
@@ -112,13 +116,18 @@ for info in "$name"*.info; do
 	
 	# pack to .tar.gz.bfe
 	tgz="$dir".tar.gz
+	bfe="$tgz".bfe
+	FILES="$tcz $tcz.info $tcz.list $tcz.md5.txt"
+	for f in $FILES; do
+		[ -f "$f" ] && continue
+		echo3 "ERROR: $f not found. Cannot create $bfe"
+		exit 1
+	done
 	dep=''
 	if [ -f "$tcz".dep ]; then
 		dep="$tcz".dep
 		echo3 "$tcz".dep
 	fi
-	tar -zcvf "$tgz" \
-		"$tcz" "$tcz".md5.txt "$tcz".list "$tcz".info ${dep:+"$dep"} \
-	&& echo3 "$tgz"
+	tar -zcvf "$tgz" $FILES ${dep:+"$dep"} && echo3 "$tgz"
 	echo -e 'tinycore\ntinycore\n' | bcrypt "$tgz" && echo3 "$tgz".bfe
 done
