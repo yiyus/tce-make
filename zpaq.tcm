@@ -16,8 +16,8 @@ Title:          zpaq-doc.tcz
 Comments:       Docs only
 Dependencies:	
 
-Git:			https://github.com/zpaq/zpaq
-Build-deps:		compiletc
+Git:            https://github.com/zpaq/zpaq
+Build-deps:     compiletc
 
 Make:
 	make -C zpaq-master/

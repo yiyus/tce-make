@@ -15,8 +15,8 @@ Current:        Compiled from sources
 Title:          abduco-doc.tcz
 Comments:       Docs only
 
-Git:			https://github.com/martanne/abduco
-Build-deps:		compiletc
+Git:            https://github.com/martanne/abduco
+Build-deps:     compiletc
 
 Make:
 	PREFIX=../abduco/usr/local make -C abduco-master/ install

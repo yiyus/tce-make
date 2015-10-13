@@ -17,8 +17,8 @@ Title:          dvtm-doc.tcz
 Comments:       Docs only
 Dependencies:	
 
-Git:			https://github.com/martanne/dvtm
-Build-deps:		compiletc ncurses-dev ncurses-utils
+Git:            https://github.com/martanne/dvtm
+Build-deps:     compiletc ncurses-dev ncurses-utils
 
 Make:
 	PREFIX=../dvtm/usr/local make -C dvtm-master/ install
