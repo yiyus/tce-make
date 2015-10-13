@@ -17,10 +17,15 @@ exec 3>&2 >"$log"log 2>&1
 echo3() { echo "$@" >&3; }
 echo3 "$log"log
 
+tce-load -i "squashfs-tools" || tce-load -wi "squashfs-tools" || exit 1
+
 # $1 should be a tcm file
 /usr/bin/awk -f - "$1" <<'EndOfAwk' | sh
 
-function cprint(c) { print c" && \\" }
+function cprint(c) {
+	sub("^\t+", "", c)
+	print c" && \\"
+}
 
 function tcm_info(tcm) {
 	if(split(tcm["Title:"], title) == 0) return
@@ -55,7 +60,6 @@ function tcm_make(tcm) {
 	for(i = 2; n >= 2 && i <= n; i++) {
 		cprint("( tce-load -i "dep[i]" || tce-load -wi "dep[i]" )")
 	}
-	field = ""
 }
 
 BEGIN{
@@ -64,27 +68,28 @@ BEGIN{
 	split(FIELDS, fields)
 }
 
+/^[ \t]*(#.*)+$/ { next }
+
 /^[A-Z][a-z_-]+:/ {
 	field = $1
-	if(field == "Title:") tcm_info(tcm)
-	else if(field == "Make:") tcm_make(tcm)
+	if(field == "Title:") {
+		tcm_info(tcm)
+	} else if(field == "Make:") {
+		tcm_make(tcm)
+		sub("Make:[ \t]*", "")
+		if($0 != "") cprint($0)
+		next
+	}
 	tcm[field] = $0
 	next
 }
 
-(field != "") {
-	tcm[field] = tcm[field]"\n"$0
-	next
-}
-
-/^[ \t]*$/ {
-	next
-}
-
-{
-	sub("^\t+", "")
+(field == "Make:") {
 	cprint($0)
+	next
 }
+
+/^[ \t]/ && (field != "") { tcm[field] = tcm[field]"\n"$0 }
 
 END { print "exit" }
 

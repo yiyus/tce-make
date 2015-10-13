@@ -23,10 +23,14 @@ Additionally, some extra fields are supported in tcm files:
 - Build-deps: dependencies to build the extensions
 - Make: commands to run before building extensions
 
+Lines starting with # are ignored.
+
 The commands in Make must fill the directory EXTENSION to build
 EXTENSION.tcz and the corresponding EXTENSION.tar.gz.bfe file.
 
-More than one extension can be generated from the same tcm file (useful
-for example to create -doc packages).
+One extension is generated for each title in the tcm file (useful
+for example to create -doc packages). Once a new title is defined,
+the contents of all the info fields is inherited from the previous
+one, but they can be redefined.
 
 For more information, see the included .tcm files.
