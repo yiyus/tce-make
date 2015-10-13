@@ -1,10 +1,12 @@
-# tce-make The tce-make script makes tinycore extensions from tcm files.
+# tce-make
+The tce-make script makes tinycore extensions from tcm files.
 
-### Also included tcm files of extensions maintained by yiyus
+### Also included
+tcm files of extensions maintained by yiyus
 
-## Usage The tce-make script reads one or more tcm files and generates
-.tar.gz.bfe files containing all the files needed to submit a tinycore
-extension.
+## Usage
+The tce-make script reads one or more tcm files and generates .tar.gz.bfe
+files containing all the files needed to submit a tinycore extension.
 
 The tcm file must contain files as a .tcz.info file, with the following
 particularities:
