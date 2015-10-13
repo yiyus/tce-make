@@ -1,0 +1,29 @@
+Title:          zpaq.tcz
+Description:    Incremental Journaling Backup Utility and Archiver
+Version:        7.05
+Author:	        Matt Mahoney
+Original-site:  http://mattmahoney.net/dc/zpaq.html
+Copying-policy: Public domain
+Extension_by:   Jesus Galan (yiyus)
+Tags:           backup archive compression
+Comments:       Binaries only
+Change-log:     ----
+                2015/10/10 Compiled from sources
+Current:        Compiled from sources
+Dependencies:	ncurses
+
+Title:          zpaq-doc.tcz
+Comments:       Docs only
+Dependencies:	
+
+Git:			https://github.com/zpaq/zpaq
+Build-deps:		compiletc
+
+Make:
+	make -C zpaq-master/
+	mkdir -p zpaq/usr/local/bin
+	mv zpaq-master/zpaq zpaq/usr/local/bin
+
+	MAN=zpaq-doc/usr/local/share/man/man1/
+	mkdir -p "$MAN"
+	pod2man zpaq-master/zpaq.pod > "$MAN"/zpaq.1

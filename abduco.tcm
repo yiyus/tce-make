@@ -1,0 +1,24 @@
+Title:          abduco.tcz
+Description:    Session {at,de}tach support (TESTING)
+Version:        0.3
+Author:	        Marc Andre Tanner
+Original-site:  http://www.brain-dump.org/projects/abduco/
+Copying-policy: ISC
+Extension_by:   Jesus Galan (yiyus)
+Tags:           session attach detach support
+Comments:       Binaries only
+Change-log:     ----
+                2015/02/26 Compiled from sources
+                2015/10/10 Compiled from sources
+Current:        Compiled from sources
+
+Title:          abduco-doc.tcz
+Comments:       Docs only
+
+Git:			https://github.com/martanne/abduco
+Build-deps:		compiletc
+
+Make:
+	PREFIX=../abduco/usr/local make -C abduco-master/ install
+	mkdir -p abduco-doc/usr/local
+	mv abduco/usr/local/share abduco-doc/usr/local

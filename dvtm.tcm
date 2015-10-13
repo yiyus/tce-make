@@ -1,0 +1,26 @@
+Title:          dvtm.tcz
+Description:    dynamic virtual terminal manager (TESTING)
+Version:        0.14
+Author:	        Marc Andre Tanner
+Original-site:  http://www.brain-dump.org/projects/dvtm/
+Copying-policy: MIT/X11
+Extension_by:   Jesus Galan (yiyus)
+Tags:           virtual terminal manager
+Comments:       Binaries only
+Change-log:     ----
+                2015/02/24 Compiled from sources
+Current:        Compiled from sources
+
+Dependencies:	ncurses
+
+Title:          dvtm-doc.tcz
+Comments:       Docs only
+Dependencies:	
+
+Git:			https://github.com/martanne/dvtm
+Build-deps:		compiletc ncurses-dev ncurses-utils
+
+Make:
+	PREFIX=../dvtm/usr/local make -C dvtm-master/ install
+	mkdir -p dvtm-doc/usr/local/share
+	mv dvtm/usr/local/share/man dvtm-doc/usr/local/share

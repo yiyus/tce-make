@@ -1,2 +1,5 @@
 # tce-make
-make tinycore extensions from tcm files
+The tce-make script makes tinycore extensions from tcm files.
+
+### Also included
+tcm files of extensions maintained by yiyus
