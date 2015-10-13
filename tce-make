@@ -99,6 +99,7 @@ for info in "$name"*.info; do
 		echo3 "ERROR: $dir/ not found. Cannot create $tcz"
 		exit 1
 	fi
+	rm -f "$TCZ".tcz
 	mksquashfs "$dir" "$tcz" -all-root && echo3 "$tcz"
 
 	# md5, list and info
