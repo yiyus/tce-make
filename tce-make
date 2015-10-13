@@ -22,11 +22,6 @@ tce-load -i "squashfs-tools" || tce-load -wi "squashfs-tools" || exit 1
 # $1 should be a tcm file
 /usr/bin/awk -f - "$1" <<'EndOfAwk' | sh
 
-function cprint(c) {
-	sub("^\t+", "", c)
-	print c" && \\"
-}
-
 function tcm_info(tcm) {
 	if(split(tcm["Title:"], title) == 0) return
 	info = title[2]".info"
@@ -53,12 +48,12 @@ function tcm_make(tcm) {
 	if(split(tcm["Git:"], git) == 2) {
 		zip=git[2]
 		sub(".*/", "", zip)
-		cprint("wget "git[2]"/archive/master.zip -O "zip".zip")
-		cprint("unzip "zip".zip")
+		print("wget "git[2]"/archive/master.zip -O "zip".zip")
+		print("unzip "zip".zip")
 	}
 	n = split(tcm["Build-deps:"], dep)
 	for(i = 2; n >= 2 && i <= n; i++) {
-		cprint("( tce-load -i "dep[i]" || tce-load -wi "dep[i]" )")
+		print("( tce-load -i "dep[i]" || tce-load -wi "dep[i]" )")
 	}
 }
 
@@ -66,6 +61,11 @@ BEGIN{
 	FIELDS="Title Description Version Author Original-site Copying-policy "\
 		"Size Extension_by Tags Comments Change-log Current"
 	split(FIELDS, fields)
+}
+
+(field == "Make:") {
+	print
+	next
 }
 
 /^[ \t]*(#.*)+$/ { next }
@@ -77,15 +77,10 @@ BEGIN{
 	} else if(field == "Make:") {
 		tcm_make(tcm)
 		sub("Make:[ \t]*", "")
-		if($0 != "") cprint($0)
+		if($0 != "") print
 		next
 	}
 	tcm[field] = $0
-	next
-}
-
-(field == "Make:") {
-	cprint($0)
 	next
 }
 
