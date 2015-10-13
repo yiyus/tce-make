@@ -1,5 +1,5 @@
 #!/bin/sh
-# tce-maker
+# tce-make: make tinycore extensions
 #
 # -- Jesus Galan (yiyus) 2015
 
