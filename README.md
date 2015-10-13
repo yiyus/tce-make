@@ -12,16 +12,16 @@ The tcm file must contain files as a .tcz.info file, with the following
 particularities:
 
 - Size is ignored, it is calculated from the tcz file.
-- A comment"Compiled from Core X.x", where X is the version of the
+- A comment "Compiled from Core X.x", where X is the version of the
   current system, is added to Comments
 - The current date is added before the Current comment
 
-Additionally, some additional fields are supported in tcm files:
+Additionally, some extra fields are supported in tcm files:
 
 - Dependencies: dependencies to load the extension
 - Git: download and decompress master.zip
-- Build-deps: dependencies to build the extension
-- Make: commands to run before building extension
+- Build-deps: dependencies to build the extensions
+- Make: commands to run before building extensions
 
 The commands in Make must fill the directory EXTENSION to build
 EXTENSION.tcz and the corresponding EXTENSION.tar.gz.bfe file.
