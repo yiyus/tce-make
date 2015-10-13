@@ -10,20 +10,19 @@ Comments:       Contains the plan9-install.sh script to generate plan9
                 extensions, either from an existing plan9port tree or
                 installing the latest version from github
                 ----
-				To create plan9.tcz: plan9-install.sh
+                To create plan9.tcz: plan9-install.sh
                 For more help:       plan9-install.sh -h
                 ----
                 NOTE: When this extension is loaded and PLAN9 is not set,
                 it tries to load a plan9 extension, else it installs
-				plan9port from github using plan9-install.sh
-				DOWNLOADING AND COMPILING P9P CAN TAKE A LONG TIME
+                plan9port from github using plan9-install.sh
+                DOWNLOADING AND COMPILING P9P CAN TAKE A LONG TIME
 Change-log:     ----
 Current:        Working with current plan9port tip in github
 
-Git:			https://github.com/yiyus/plan9port-tc
+Git:	https://github.com/yiyus/plan9port-tc
 
-Make:
-	LOC=plan9port/usr/local
+Make:	LOC=plan9port/usr/local
 	BIN=$LOC/bin
 	TCI=$LOC/tce.installed
 	mkdir -p "$BIN" "$TCI"
