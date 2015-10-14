@@ -44,6 +44,11 @@ if [ $# -gt 1 ]; then
 	exec "$0" "$@"
 fi
 
+if [ ! -f "$1" ] || [ ! -r "$1" ]; then
+	echo "ERROR: $1 not found" 1>&2
+	exit
+fi
+
 tcm="${1##*/}"
 name="${tcm%.tcm}"
 
