@@ -19,6 +19,6 @@ Make:
 	mkdir -p "$BIN"
 	(	sed '/^USAGE=/ {s|'\''$||;q}' "$ORIG"
 		sed -n '1,/^#\+ Usage/d; /^#/q; p' "$README"
-		sed '1 s/.*/'\''/p; 1,/^USAGE/d' "$ORIG"
+		sed '1,/^USAGE/d' "$ORIG"
 	) > "$BIN"/tce-make
 	chmod +x "$BIN"/*

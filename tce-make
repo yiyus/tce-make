@@ -3,7 +3,8 @@
 #
 # -- Jesus Galan (yiyus) 2015
 
-USAGE='Usage: tce-make.sh [TCM]...'
+USAGE='Usage: tce-make.sh [TCM]...
+'
 
 if [ $# -gt 1 ]; then
 	"$0" "$1" || exit 1
@@ -12,7 +13,7 @@ if [ $# -gt 1 ]; then
 	exec "$0" "$@"
 elif [ $# -eq 1 ]; then
 	if [ "$1" = "-h" ]; then
-		echo "$USAGE" 1>&2
+		echo -n "$USAGE" 1>&2
 		exit
 	fi
 	tcm="${1##*/}"
