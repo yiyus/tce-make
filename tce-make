@@ -3,26 +3,54 @@
 #
 # -- Jesus Galan (yiyus) 2015
 
-USAGE='Usage: tce-make.sh [TCM]...
-'
+USAGE='Usage: tce-make.sh [-h] FILES...
+
+Read one or more tcm files and generate .tar.gz.bfe files containing
+all the files needed to submit a tinycore extension.
+
+The tcm file must contain fields as a .tcz.info file, with the following
+particularities:
+
+- Size is ignored, it is calculated from the tcz file
+- A comment "Compiled from Core X.x", where X is the version of the
+  current system, is added to Comments
+- The current date is added before the Current comment
+
+Additionally, some extra fields are supported in tcm files:
+
+- Dependencies: dependencies to load the extension
+- Git: download and decompress master.zip
+- Build-deps: dependencies to build the extensions
+-Make: commands to run before building extensions
+
+Lines starting with # are ignored.
+
+The commands in Make must fill the directory EXTENSION to build
+EXTENSION.tcz and the corresponding EXTENSION.tar.gz.bfe file.
+
+One extension is generated for each title in the tcm file. When a new
+title is defined, the contents of all the info fields is inherited from
+the previous one, but they can be redefined.'
+
+if [ $# -lt 1 ] || [ "$1" == "-h" ]; then
+	echo "$USAGE" 1>&2
+	exit
+fi
 
 if [ $# -gt 1 ]; then
 	"$0" "$1" || exit 1
 	shift
 	echo
 	exec "$0" "$@"
-elif [ $# -eq 1 ]; then
-	if [ "$1" = "-h" ]; then
-		echo -n "$USAGE" 1>&2
-		exit
-	fi
-	tcm="${1##*/}"
-	name="${tcm%.tcm}"
-	log="$name".
 fi
-exec 3>&2 >"$log"log 2>&1
+
+tcm="${1##*/}"
+name="${tcm%.tcm}"
+
+log="$name".log
+exec 3>&2 >"$log"l 2>&1
 echo3() { echo "$@" >&3; }
-echo3 "$log"log
+echo3 "$log"
 
 tce-load -i "squashfs-tools" || tce-load -wi "squashfs-tools" || exit 1
 
@@ -93,9 +121,12 @@ BEGIN{
 
 /^[ \t]/ && (field != "") { tcm[field] = tcm[field]"\n"$0 }
 
-END { print "exit" }
-
 EndOfAwk
+
+if [ ! $? -eq 0 ]; then
+	echo3 "ERROR: Could not make $tcm. See $log"
+	exit 1
+fi
 
 for info in "$name"*.info; do
 	dir="${info%.tcz.info}"

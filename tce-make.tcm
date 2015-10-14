@@ -13,12 +13,7 @@ Current:        Compiled from sources
 Git:            https://github.com/yiyus/tce-make
 
 Make:
-	ORIG=tce-make-master/tce-make
-	README=tce-make-master/README.md
 	BIN="tce-make/usr/local/bin"
 	mkdir -p "$BIN"
-	(	sed '/^USAGE=/ {s|'\''$||;q}' "$ORIG"
-		sed -n '1,/^#\+ Usage/d; /^#/q; p' "$README"
-		sed '1,/^USAGE/d' "$ORIG"
-	) > "$BIN"/tce-make
-	chmod +x "$BIN"/*
+	cp tce-make-master/tce-make "$BIN"
+	chmod +x "$BIN"/tce-make || exit 1
