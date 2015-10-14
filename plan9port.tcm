@@ -1,0 +1,48 @@
+Title:          plan9port.tcz
+Description:    Plan 9 from User Space extension creator
+Version:        0.1
+Author:	        Jesus Galan (yiyus)
+Original-site:  https://github.com/yiyus/plan9port-tc
+Copying-policy: MIT/X11
+Extension_by:   Jesus Galan (yiyus)
+Tags:           plan9port p9p plan9 rc sam acme rio venti glenda
+Comments:       Contains the plan9-install.sh script to generate plan9
+                extensions, either from an existing plan9port tree or
+                installing the latest version from github
+                ----
+				To create plan9.tcz: plan9-install.sh
+                For more help:       plan9-install.sh -h
+                ----
+                NOTE: When this extension is loaded and PLAN9 is not set,
+                it tries to load a plan9 extension, else it installs
+				plan9port from github using plan9-install.sh
+				DOWNLOADING AND COMPILING P9P CAN TAKE A LONG TIME
+Change-log:     ----
+Current:        Working with current plan9port tip in github
+
+Git:			https://github.com/yiyus/plan9port-tc
+
+Make:
+	LOC=plan9port/usr/local
+	BIN=$LOC/bin
+	TCI=$LOC/tce.installed
+	mkdir -p "$BIN" "$TCI"
+	cp plan9port-tc-master/plan9-install.sh "$BIN"
+	cat > "$TCI"/plan9port <<-'EODD'
+		#!/bin/sh
+
+		# run as tcuser
+		TCUSER=$(cat /etc/sysconfig/tcuser)
+		[ -n "$TCUSER" ] && sudo -u "$TCUSER" /bin/sh <<EOD
+		    # If PLAN9 has already been set, exit
+		    [ -n "$PLAN9" ] && exit
+
+		    # else try to load an existing extension
+		    tce-load -i plan9-local >/dev/null && exit
+		    tce-load -i plan9 >/dev/null && exit
+
+		    # or create a new one
+		    plan9-install.sh && tce-load -i plan9
+		EOD
+	EODD
+	chmod +x "$TCI"/plan9port "$BIN"/plan9-install.sh
