@@ -1,3 +1,4 @@
+#!/usr/local/bin/tce-make
 Title:          tce-make.tcz
 Description:    Tinycore extension maker
 Version:        0.1
@@ -16,4 +17,4 @@ Make:
 	BIN="tce-make/usr/local/bin"
 	mkdir -p "$BIN"
 	cp tce-make-master/tce-make "$BIN"
-	chmod +x "$BIN"/tce-make || exit 1
+	chmod +x "$BIN"/tce-make

@@ -53,7 +53,7 @@ tcm="${1##*/}"
 name="${tcm%.tcm}"
 
 log="$name".log
-exec 3>&2 >"$log"l 2>&1
+exec 3>&2 >"$log" 2>&1
 echo3() { echo "$@" >&3; }
 echo3 "$log"
 
@@ -88,8 +88,8 @@ function tcm_make(tcm) {
 	if(split(tcm["Git:"], git) == 2) {
 		zip=git[2]
 		sub(".*/", "", zip)
-		print("wget "git[2]"/archive/master.zip -O "zip".zip")
-		print("unzip "zip".zip")
+		print("wget -q "git[2]"/archive/master.zip -O "zip".zip")
+		print("unzip -o "zip".zip")
 	}
 	n = split(tcm["Build-deps:"], dep)
 	for(i = 2; n >= 2 && i <= n; i++) {
