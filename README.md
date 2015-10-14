@@ -1,14 +1,12 @@
-# tce-make
-The tce-make script makes tinycore extensions from tcm files.
+# tce-make.sh
+The tce-make.sh script makes tinycore extensions from tcm files.
 
-### Also included
-tcm files of extensions maintained by yiyus
+## Usage:
 
-## Usage
-The tce-make script reads one or more tcm files and generates .tar.gz.bfe
-files containing all the files needed to submit a tinycore extension.
+Read one or more tcm files and generate .tar.gz.bfe files containing
+all the files needed to submit a tinycore extension.
 
-The tcm file must contain files as a .tcz.info file, with the following
+The tcm file must contain fields as a .tcz.info file, with the following
 particularities:
 
 - Size is ignored, it is calculated from the tcz file.
@@ -33,4 +31,5 @@ for example to create -doc packages). Once a new title is defined,
 the contents of all the info fields is inherited from the previous
 one, but they can be redefined.
 
-For more information, see the included .tcm files.
+### See also
+Sample .tcm files are included in this repository.

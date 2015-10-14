@@ -3,12 +3,18 @@
 #
 # -- Jesus Galan (yiyus) 2015
 
+USAGE='Usage: tce-make.sh [TCM]...'
+
 if [ $# -gt 1 ]; then
 	"$0" "$1" || exit 1
 	shift
 	echo
 	exec "$0" "$@"
 elif [ $# -eq 1 ]; then
+	if [ "$1" = "-h" ]; then
+		echo "$USAGE" 1>&2
+		exit
+	fi
 	tcm="${1##*/}"
 	name="${tcm%.tcm}"
 	log="$name".
