@@ -4,7 +4,7 @@ The tce-make script makes tinycore extensions from tcm files.
 ## Usage:
 
     $ tce-make -h
-    Usage: tce-make.sh [-h] FILES...
+    Usage: tce-make [-h] FILES...
     
     Read one or more tcm files and generate .tar.gz.bfe files containing
     all the files needed to submit a tinycore extension.

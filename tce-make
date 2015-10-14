@@ -3,7 +3,7 @@
 #
 # -- Jesus Galan (yiyus) 2015
 
-USAGE='Usage: tce-make.sh [-h] FILES...
+USAGE='Usage: tce-make [-h] FILES...
 
 Read one or more tcm files and generate .tar.gz.bfe files containing
 all the files needed to submit a tinycore extension.
