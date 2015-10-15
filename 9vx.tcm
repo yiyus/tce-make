@@ -29,19 +29,21 @@ Make:
 		URL=http://9legacy.org/download/9legacy.iso.bz2
 		TCE=/etc/sysconfig/tcedir
 		ISO="$TCE"/9legacy.iso
+		TMPISO=/tmp/9legacy.iso
 		if [ "$1" = "-d" ]; then
 			shift
 		    wget -P "/tmp" "$URL" \
-		      && echo -n "Decompressing /tmp/9legacy.iso.bz2..." 1>&2 \
-		      && bunzip2 /tmp/9legacy.iso.bz2 \
-		      && echo "OK" 1>&2 \
-		      && mv /tmp/9legacy.iso "$TCE" \
+		      && echo -n "Decompressing $TMPISO.bz2..." 1>&2 \
+		      && bunzip2 "$TMPISO".bz2 \
+		      && echo " OK" 1>&2 \
+		      && cp "$TMPISO" "$TCE" \
+		      && rm "$TMPISO" \
 		      && echo "${ISO}: OK" 1>&2 \
 		    || exit 1
 		elif [ ! -r "$ISO" ]; then
-			echo "ERROR: $ISO not found" 1>&2
-			echo "Force download with: 9legacy -d" 1>&2
-			exit 1
+		    echo "ERROR: $ISO not found" 1>&2
+		    echo "Force download with: 9legacy -d" 1>&2
+		    exit 1
 		fi
 		9vx -r "$ISO" -u glenda "$@"
 	EOD
