@@ -35,7 +35,7 @@ Make:
 		      && echo -n "Decompressing /tmp/9legacy.iso.bz2..." 1>&2 \
 		      && bunzip2 /tmp/9legacy.iso.bz2 \
 		      && echo "OK" 1>&2 \
-		      && mv /tmp/9legacy.iso "$TCE"
+		      && mv /tmp/9legacy.iso "$TCE" \
 		      && echo "${ISO}: OK" 1>&2 \
 		    || exit 1
 		elif [ ! -r "$ISO" ]; then
