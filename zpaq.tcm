@@ -17,12 +17,15 @@ Comments:       Docs only
 Dependencies:	
 
 Git:            https://github.com/zpaq/zpaq
-Build-deps:     compiletc
+Build-deps:     compiletc binutils
 
 Make:
 	make -C zpaq-master/
-	mkdir -p zpaq/usr/local/bin
-	mv zpaq-master/zpaq zpaq/usr/local/bin
+
+	BIN=zpaq/usr/local/bin
+	mkdir -p "$BIN"
+	mv zpaq-master/zpaq "$BIN"
+	strip --strip-unneeded "$BIN"/zpaq
 
 	MAN=zpaq-doc/usr/local/share/man/man1/
 	mkdir -p "$MAN"
