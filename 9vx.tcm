@@ -10,7 +10,7 @@ Comments:       Binaries only
                 ----
                 In order to run a full Plan 9 system, a system
                 tree or iso file is needed. One can be downloaded
-                with: 9legacy -d
+                with: 9vx-iso -d
                 ----
                 See also: http://pdos.csail.mit.edu/~baford/vm/
 Change-log:     ----
@@ -24,28 +24,36 @@ Make:
 	sed -i '
 		/^BINDIR/ s,=.*,= '"$PWD"/"$BIN"',
 	' vx32-master/src/GNUmakefile
-	cat >"$BIN"/9legacy <<-'EOD'
+	cat >"$BIN"/9vx-iso <<-'EOD'
 		#!/bin/sh
-		URL=http://9legacy.org/download/9legacy.iso.bz2
-		TCE=/etc/sysconfig/tcedir
-		ISO="$TCE"/9legacy.iso
-		TMPISO=/tmp/9legacy.iso
+		: ${DIR:=/etc/sysconfig/tcedir}
+		: ${URL:=http://9legacy.org/download/9legacy.iso.bz2}
+		if [ "$1" = "-h" ]; then
+		    echo 'Usage: 9vx-iso [-h] [-d] [9vxOPTIONS]'
+		    echo "  Run 9vx with tree in iso file in DIR"
+		    echo "  If iso is not found and -d is used, download from URL"
+		    echo 'Default DIR=$DIR"
+		    echo "Default URL=$URL"
+		    exit
+		fi 1>&2
+		FILE="${URL##*/}"
+		ISO="${FILE%%.*}".iso
 		if [ "$1" = "-d" ]; then
-			shift
-		    wget -P "/tmp" "$URL" \
-		      && echo -n "Decompressing $TMPISO.bz2..." 1>&2 \
-		      && bunzip2 "$TMPISO".bz2 \
-		      && echo " OK" 1>&2 \
-		      && cp "$TMPISO" "$TCE" \
-		      && rm "$TMPISO" \
-		      && echo "${ISO}: OK" 1>&2 \
-		    || exit 1
+		    shift
+		    wget -P "/tmp" "$URL" || exit 1
+		    if [ "${FILE##*.}" = "bz2 ]; then
+		        echo -n "Decompressing $FILE" 1>&2
+		        bunzip2 /tmp/"$FILE" && echo ": OK" 1>&2
+		    fi
+		    cp /tmp/"$ISO" "$DIR" && rm /tmp/"$ISO" || exit 1
+		    sync
+		    echo "${ISO}: OK" 1>&2
 		elif [ ! -r "$ISO" ]; then
-		    echo "ERROR: $ISO not found" 1>&2
-		    echo "Force download with: 9legacy -d" 1>&2
+		    echo "ERROR: $ISO not found in DIR=$DIR" 1>&2
+		    echo "Force download from URL=$URL with: 9vx-iso -d" 1>&2
 		    exit 1
 		fi
-		9vx -r "$ISO" -u glenda "$@"
+		exec 9vx -r "$ISO" -u glenda "$@"
 	EOD
 	make -C vx32-master/src/ 9vx/install
 	strip --strip-unneeded "$BIN"/9vx
