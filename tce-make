@@ -83,95 +83,15 @@ cat <<-'EndOfSh' > "$build"
 		say() { echo "$@" 1>&2; }
 	fi
 
-	tceload(){ tce-load -i "$1" || tce-load -wi "1" || exit 1
+	tceload(){ tce="$1"
+	    tce-load -i "$tce" || tce-load -wi "$tce" || exit 1
 	}
-	gitmaster(){ wget -q "$1"/archive/master.zip -O "$2".zip && unzip -o "$2".zip || exit 1
+	gitmaster(){ url="$1"
+	    name="${url##*/}"
+	    wget -q "$url"/archive/master.zip -O "$name".zip \
+	        && unzip -o "$name".zip || exit 1
 	}
-	tceload squashfs-tools
-EndOfSh
-
-# $1 should be a tcm file
-/usr/bin/awk -f - "$1" >>"$build" <<'EndOfAwk'
-
-function tcm_info(tcm) {
-	if(split(tcm["Title:"], title) == 0) return
-	info = title[2]".info"
-	infos[length(infos) + 1] = info
-	if(system("rm -f "info)) exit(1)
-	for(i = 1; i <= length(fields); i++) {
-		f = fields[i]
-		txt = tcm[f":"]
-		if(f == "Size") txt = sprintf("Size: %10sSIZE", "")
-		else if(f == "Current") sub("^Current:[ \t]+", "&YYYY/mm/dd ", txt)
-		print txt > info
-		if(f == "Comments") {
-			printf("%16s----\n", "") > info
-			printf("%16sCompiled for Core X.x\n", "") > info
-		}
-	}
-	n = split(tcm["Dependencies:"], dep)
-	for(i = 2; n >= 2 && i <= n; i++) {
-		print dep[i] > title[2]".dep"
-	}
-}
-
-function tcm_make(tcm) {
-	tcm_info(tcm)
-	if(split(tcm["Git:"], git) == 2) {
-		zip=git[2]
-		sub(".*/", "", zip)
-		print("gitmaster "git[2]" "zip)
-	}
-	n = split(tcm["Build-deps:"], dep)
-	for(i = 2; n >= 2 && i <= n; i++) {
-		print("tceload "dep[i])
-	}
-}
-
-BEGIN{
-	FIELDS="Title Description Version Author Original-site Copying-policy "\
-		"Size Extension_by Tags Comments Change-log Current"
-	split(FIELDS, fields)
-}
-
-(field == "Make:") {
-	print
-	next
-}
-
-/^[ \t]*(#.*)+$/ { next }
-
-/^[A-Z][a-z_-]+:/ {
-	field = $1
-	if(field == "Title:") {
-		tcm_info(tcm)
-	} else if(field == "Make:") {
-		tcm_make(tcm)
-		sub("Make:[ \t]*", "")
-		if($0 != "") print
-		next
-	}
-	tcm[field] = $0
-	next
-}
-
-/^[ \t]/ && (field != "") { tcm[field] = tcm[field]"\n"$0 }
-
-END {
-	if(length(infos) < 1) exit(1)
-	printf("for info in ")
-	for(i in infos) printf (i > 1 ? " " : "")"\""infos[i]"\""
-	print "; do"
-}
-
-EndOfAwk
-
-if [ ! $? -eq 0 ]; then
-	echo "ERROR: could not generate $build from $1" 1>&2
-	exit 1
-fi
-
-cat <<-'EndOfSh' >> "$build"
+	packinfo(){ info="$1"
 	    dir="${info%.tcz.info}"
 	    tcz="$dir".tcz
 
@@ -207,8 +127,80 @@ cat <<-'EndOfSh' >> "$build"
 	    fi
 	    tar -zcvf "$tgz" $FILES ${dep:+"$dep"} && say "$tgz"
 	    echo -e 'tinycore\ntinycore\n' | bcrypt "$tgz" && say "$tgz".bfe
-    done
+	}
+	
+	tceload squashfs-tools
 EndOfSh
+
+# $1 should be a tcm file
+/usr/bin/awk -f - "$1" >>"$build" <<'EndOfAwk'
+
+function tcm_info(tcm) {
+	if(split(tcm["Title:"], title) == 0) return
+	info = title[2]".info"
+	infos[length(infos) + 1] = info
+	if(system("rm -f "info)) exit(1)
+	for(i = 1; i <= length(fields); i++) {
+		f = fields[i]
+		txt = tcm[f":"]
+		if(f == "Size") txt = sprintf("Size: %10sSIZE", "")
+		else if(f == "Current") sub("^Current:[ \t]+", "&YYYY/mm/dd ", txt)
+		print txt > info
+		if(f == "Comments") {
+			printf("%16s----\n", "") > info
+			printf("%16sCompiled for Core X.x\n", "") > info
+		}
+	}
+	n = split(tcm["Dependencies:"], dep)
+	for(i = 2; n >= 2 && i <= n; i++) {
+		print dep[i] > title[2]".dep"
+	}
+}
+
+function tcm_make(tcm) {
+	tcm_info(tcm)
+	if(split(tcm["Git:"], git) == 2) print "gitmaster", git[2]
+	n = split(tcm["Build-deps:"], dep)
+	for(i = 2; n >= 2 && i <= n; i++) print "tceload", dep[i]
+}
+
+BEGIN{
+	FIELDS="Title Description Version Author Original-site Copying-policy "\
+		"Size Extension_by Tags Comments Change-log Current"
+	split(FIELDS, fields)
+}
+
+(field == "Make:") {
+	print
+	next
+}
+
+/^[ \t]*(#.*)+$/ { next }
+
+/^[A-Z][a-z_-]+:/ {
+	field = $1
+	if(field == "Title:") {
+		tcm_info(tcm)
+	} else if(field == "Make:") {
+		tcm_make(tcm)
+		sub("Make:[ \t]*", "")
+		if($0 != "") print
+		next
+	}
+	tcm[field] = $0
+	next
+}
+
+/^[ \t]/ && (field != "") { tcm[field] = tcm[field]"\n"$0 }
+
+END { for(i in infos) print "packinfo", infos[i] }
+
+EndOfAwk
+
+if [ ! $? -eq 0 ]; then
+	echo "ERROR: could not generate $build from $1" 1>&2
+	exit 1
+fi
 
 chmod +x "$build"
 [ -z "$BUILDONLY" ] && ./"$build" ${VERBOSE:+"-v"}
