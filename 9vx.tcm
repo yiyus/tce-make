@@ -16,6 +16,9 @@ Comments:       Binaries only
 Change-log:     ----
 Current:        Compiled from sources
 
+Title:          9vx-doc.tcz
+Comments:       Docs only
+
 #Git:            https://github.com/0intro/vx32
 Build-deps:     compiletc binutils Xorg-7.7-dev
 Make:
@@ -24,16 +27,17 @@ Make:
 	sed -i '
 		/^BINDIR/ s,=.*,= '"$PWD"/"$BIN"',
 	' vx32-master/src/GNUmakefile
+	make -C vx32-master/src/ 9vx/install
+	strip --strip-unneeded "$BIN"/9vx
+
 	cat >"$BIN"/9vx-iso <<-'EOD'
 		#!/bin/sh
 		: ${DIR:=/etc/sysconfig/tcedir}
 		: ${URL:=http://9legacy.org/download/9legacy.iso.bz2}
 		if [ "$1" = "-h" ]; then
 		    echo 'Usage: 9vx-iso [-h] [-d] [9vxOPTIONS]'
-		    echo "  Run 9vx with tree in iso file in DIR"
-		    echo "  If iso is not found and -d is used, download from URL"
-		    echo 'Default DIR=$DIR"
-		    echo "Default URL=$URL"
+		    echo "  Run 9vx with tree in iso file in DIR (defaul: $DIR)"
+		    echo "  If -d is used, force download from URL (default: $URL)"
 		    exit
 		fi 1>&2
 		FILE="${URL##*/}"
@@ -41,20 +45,25 @@ Make:
 		if [ "$1" = "-d" ]; then
 		    shift
 		    wget -P "/tmp" "$URL" || exit 1
-		    if [ "${FILE##*.}" = "bz2 ]; then
+		    if [ "${FILE##*.}" = "bz2" ]; then
 		        echo -n "Decompressing $FILE" 1>&2
 		        bunzip2 /tmp/"$FILE" && echo ": OK" 1>&2
 		    fi
 		    cp /tmp/"$ISO" "$DIR" && rm /tmp/"$ISO" || exit 1
 		    sync
 		    echo "${ISO}: OK" 1>&2
-		elif [ ! -r "$ISO" ]; then
-		    echo "ERROR: $ISO not found in DIR=$DIR" 1>&2
-		    echo "Force download from URL=$URL with: 9vx-iso -d" 1>&2
+		elif [ ! -r "${DIR}/${ISO}" ]; then
+		    DOM="${URL#*//}"
+		    DOM="${DOM%%/*}"
+		    echo "ERROR: $ISO not found in $DIR" 1>&2
+		    echo "Force download from $DOM with: 9vx-iso -d" 1>&2
 		    exit 1
 		fi
-		exec 9vx -r "$ISO" -u glenda "$@"
+		exec 9vx -u glenda "$@" -r "${DIR}/${ISO}"
 	EOD
-	make -C vx32-master/src/ 9vx/install
-	strip --strip-unneeded "$BIN"/9vx
+
 	chmod +x "$BIN"/*
+
+	MAN=9vx-doc/usr/local/share/man
+	mkdir -p "$MAN"
+	cp vx32-master/doc/9vx.1 "$MAN"

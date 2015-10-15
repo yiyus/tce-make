@@ -161,6 +161,7 @@ function tcm_make(tcm) {
 	if(split(tcm["Git:"], git) == 2) print "gitmaster", git[2]
 	n = split(tcm["Build-deps:"], dep)
 	for(i = 2; n >= 2 && i <= n; i++) print "tceload", dep[i]
+	print "# Make commands:"
 }
 
 BEGIN{
