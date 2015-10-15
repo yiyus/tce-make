@@ -45,8 +45,8 @@ if [ $# -gt 1 ]; then
 fi
 
 if [ ! -f "$1" ] || [ ! -r "$1" ]; then
-	echo "ERROR: $1 not found" 1>&2
-	exit
+	echo "ERROR: cannot open $1" 1>&2
+	exit 1
 fi
 
 tcm="${1##*/}"
