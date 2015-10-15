@@ -40,8 +40,8 @@ Make:	LOC=plan9port/usr/local
 		    tce-load -i plan9-local >/dev/null && exit
 		    tce-load -i plan9 >/dev/null && exit
 
-		    # or create a new one
-		    plan9-install.sh && tce-load -i plan9
+		    # or we could create a new one, but we don't
+		    #plan9-install.sh && tce-load -i plan9
 		EOD
 	EODD
 	chmod +x "$TCI"/plan9port "$BIN"/plan9-install.sh
