@@ -1,0 +1,50 @@
+Title:          9vx.tcz
+Description:    Port of Plan 9 using the vx32 sandboxing library 
+Version:        0.12+
+Author:	        Russ Cox, Bryan Ford, et al
+Original-site:  https://github.com/0intro/vx32
+Copying-policy: LPL 1.02
+Extension_by:   Jesus Galan (yiyus)
+Tags:           vm vx32 9vx Plan9 glenda
+Comments:       Binaries only
+                ----
+                In order to run a full Plan 9 system, a system
+                tree or iso file is needed. One can be downloaded
+                with: 9legacy -d
+                ----
+                See also: http://pdos.csail.mit.edu/~baford/vm/
+Change-log:     ----
+Current:        Compiled from sources
+
+#Git:            https://github.com/0intro/vx32
+Build-deps:     compiletc binutils Xorg-7.7-dev
+Make:
+	BIN=9vx/usr/local/bin
+	mkdir -p "$BIN"
+	sed -i '
+		/^BINDIR/ s,=.*,= '"$PWD"/"$BIN"',
+	' vx32-master/src/GNUmakefile
+	cat >"$BIN"/9legacy <<-'EOD'
+		#!/bin/sh
+		URL=http://9legacy.org/download/9legacy.iso.bz2
+		TCE=/etc/sysconfig/tcedir
+		ISO="$TCE"/9legacy.iso
+		if [ "$1" = "-d" ]; then
+			shift
+		    wget -P "/tmp" "$URL" \
+		      && echo -n "Decompressing /tmp/9legacy.iso.bz2..." 1>&2 \
+		      && bunzip2 /tmp/9legacy.iso.bz2 \
+		      && echo "OK" 1>&2 \
+		      && mv /tmp/9legacy.iso "$TCE"
+		      && echo "${ISO}: OK" 1>&2 \
+		    || exit 1
+		elif [ ! -r "$ISO" ]; then
+			echo "ERROR: $ISO not found" 1>&2
+			echo "Force download with: 9legacy -d" 1>&2
+			exit 1
+		fi
+		9vx -r "$ISO" -u glenda "$@"
+	EOD
+	make -C vx32-master/src/ 9vx/install
+	strip --strip-unneeded "$BIN"/9vx
+	chmod +x "$BIN"/*
