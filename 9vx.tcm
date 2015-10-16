@@ -19,7 +19,7 @@ Current:        Compiled from sources
 Title:          9vx-doc.tcz
 Comments:       Docs only
 
-#Git:            https://github.com/0intro/vx32
+Git:            https://github.com/0intro/vx32
 Build-deps:     compiletc binutils Xorg-7.7-dev
 Make:
 	BIN=9vx/usr/local/bin

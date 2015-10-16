@@ -35,7 +35,9 @@ title is defined, the contents of all the info fields is inherited from
 the previous one, but they can be redefined.
 
 With -b, a .build script is generated, but not run. With -v, the
-output of running the script is displayed on screen.'
+output of running the script is displayed on screen.
+
+Output files are created in $TCMDIR (default: /tmp/tcm).'
 
 if [ $# -lt 1 ] || [ "$1" == "-h" ]; then
 	echo "$USAGE" 1>&2
@@ -44,12 +46,14 @@ fi
 
 if [ "$1" = "-b" ]; then
 	shift
-	BUILDONLY=1
+	notbuild="-b"
 elif [ "$1" = "-v" ]; then
 	shift
-	VERBOSE=1
+	verbose="-v"
 fi
 
+: ${TCMDIR:=/tmp/tcm}
+[ -d "$TCMDIR" ] || mkdir -p "$TCMDIR" || exit 1
 
 if [ ! -f "$1" ] || [ ! -r "$1" ]; then
 	echo "ERROR: cannot open $1" 1>&2
@@ -58,7 +62,7 @@ fi
 
 tcm="${1##*/}"
 name="${tcm%.tcm}"
-build="$name".build
+build="${TCMDIR}/$name".build
 
 cat >"$build" <<'---Sh---'
 #!/bin/sh
@@ -128,7 +132,6 @@ tceload squashfs-tools
 
 ---Sh---
 
-# $1 should be a tcm file
 /usr/bin/awk -f - "$1" >>"$build" <<'---Awk---' || exit 1
 
 function tcm_info(tcm) {
@@ -198,11 +201,11 @@ END { for(i in infos) print "packinfo", infos[i] }
 ---Awk---
 
 chmod +x "$build"
-if [ -z "$BUILDONLY" ]; then
-	./"$build" ${VERBOSE:+"-v"} || exit 1
-fi
+echo "$name".build 1>&2
 
-[ $# -eq 1 ] && exit
-shift
-echo
-exec "$0" "$@"
+[ -n "$notbuild" ] || ( cd "$TCMDIR" && "$build" $verbose ) || exit 1
+
+if [ $# -gt 1 ]; then
+	shift
+	exec "$0" $notbuild $verbose "$@"
+fi

@@ -36,6 +36,8 @@ The tce-make script makes tinycore extensions from tcm files.
     
     With -b, a .build script is generated, but not run. With -v, the
     output of running the script is displayed on screen.
+    
+    Output files are created in $TCMDIR (default: /tmp/tcm).
 
 ### See also
 Sample .tcm files are included in this repository.
