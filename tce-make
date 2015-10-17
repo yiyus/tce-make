@@ -74,24 +74,26 @@ cat >"$build" <<'---Sh---'
 build="${0##*/}"
 name="${build%.build}"
 
-# With quiet output, redirect stdout and stderr to log fine
-# and 3 to stderr to be able to display messages with say
+# With quiet output, redirect stdout and stderr to log file
+# and 3 to stderr
 if [ ! "$1" == "-v" ]; then
 	echo "${PWD}/$name".log 1>&2
 	exec 3>&2 >"$name".log 2>&1
 	stderr=3
 fi
 
+# Echoes to stderr
+echoe() { echo "$@" 1>&${stderr-2}; }
+
 # Say that we created file, or that we failed and exit
-say() { echo "$@" 1>&${stderr-2}; }
-check() { what="${PWD}/$1"
-	if [ ! -r "$what" ]; then
-		say -n "ERROR: $what was not created"
-		[ "$1" == "-v" ] && say || say " (see $log)"
+check() { full="${PWD}/$1"
+	if [ ! -r "$full" ]; then
+		echoe -n "ERROR: $full was not created"
+		[ "$1" == "-v" ] && echoe || echoe " (see $log)"
 		exit 1
 	fi
-	[ -d "$what" ] && what="${what%/}/"
-	say "$what"
+	[ -d "$full" ] && full="${full%/}/"
+	echoe "$full"
 }
 
 # Load extension, downloading if needed
