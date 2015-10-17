@@ -76,14 +76,23 @@ name="${build%.build}"
 
 # With quiet output, redirect stdout and stderr to log fine
 # and 3 to stderr to be able to display messages with say
-if [ "$1" != "-v" ]; then
-	log="$name".log
-	exec 3>&2 >"$log" 2>&1
-	say() { echo "$@" 1>&3; }
-	say "$log"
-else
-	say() { echo "$@" 1>&2; }
+if [ ! "$1" == "-v" ]; then
+	echo "${PWD}/$name".log 1>&2
+	exec 3>&2 >"$name".log 2>&1
+	stderr=3
 fi
+
+# Say that we created file, or that we failed and exit
+say() { echo "$@" 1>&${stderr-2}; }
+check() { what="${PWD}/$1"
+	if [ ! -r "$what" ]; then
+		say -n "ERROR: $what was not created"
+		[ "$1" == "-v" ] && say || say " (see $log)"
+		exit 1
+	fi
+	[ -d "$what" ] && what="${what%/}/"
+	say "$what"
+}
 
 # Load extension, downloading if needed
 tceload(){ tce="$1"
@@ -103,37 +112,35 @@ packinfo(){ info="$1"
 	tcz="$dir".tcz
 
 	# make tcz
-	if [ ! -d "$dir" ]; then
-		say "ERROR: $dir/ not found. Cannot create $tcz"
-		exit 1
-	fi
-	rm -f "$TCZ".tcz
-	mksquashfs "$dir" "$tcz" -all-root && say "$tcz"
+	check "$dir"
+	rm -f "$tcz"
+	mksquashfs "$dir" "$tcz" -all-root
+	check "$tcz"
 
 	# md5, list and info
-	md5sum "$tcz" > "$tcz".md5.txt && say "$tcz".md5.txt
-	(cd "$dir"; find * ! -type d) > "$tcz".list && say "$tcz".list
+	md5sum "$tcz" > "$tcz".md5.txt
+	check "$tcz".md5.txt
+	(cd "$dir"; find * ! -type d) > "$tcz".list
+	check "$tcz".list
 	sed '/^Size:/s,SIZE,'$(du "$tcz" | cut -f1)'K,
 		/Compiled for Core X.x/s/X/'$(version | cut -d. -f1)'/
 		/^Current:/s,YYYY/mm/dd,'$(date +%Y/%m/%d)',
-	' -i "$info" && say "$info"
+	' -i "$info"
+	check "$info"
 
 	# pack to .tar.gz.bfe
 	tgz="$dir".tar.gz
 	bfe="$tgz".bfe
 	FILES="$tcz $tcz.info $tcz.list $tcz.md5.txt"
-	for f in $FILES; do
-		[ -f "$f" ] && continue
-		say "ERROR: $f not found. Cannot create $bfe"
-		exit 1
-	done
 	unset dep
 	if [ -f "$tcz".dep ]; then
-		dep="$tcz".dep
-		say "$tcz".dep
+		FILES="$FILES $tcz".dep
+		check "$tcz".dep
 	fi
-	tar -zcvf "$tgz" $FILES ${dep:+"$dep"} && say "$tgz"
-	echo -e 'tinycore\ntinycore\n' | bcrypt "$tgz" && say "$tgz".bfe
+	tar -zcvf "$tgz" $FILES
+	check "$tgz"
+	echo -e 'tinycore\ntinycore\n' | bcrypt "$tgz"
+	check "$tgz".bfe
 }
 
 tceload squashfs-tools # to create tcz files
@@ -217,7 +224,7 @@ END { for(i in infos) print "packinfo", infos[i] }
 
 # Build script done, make it executable
 chmod +x "$build"
-echo "$name".build 1>&2
+echo "${TCMDIR}/$name".build 1>&2
 
 # Actually run the build script (unless opted out)
 [ -n "$notbuild" ] || ( cd "$TCMDIR" && "$build" $verbose ) || exit 1
