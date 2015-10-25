@@ -30,13 +30,13 @@ Make:	LOC=plan9port/usr/local
 	cat > "$TCI"/plan9port <<-'EODD'
 		#!/bin/sh
 		
-		cliorx() {
-		    [ "$DISPLAY" ] && /usr/local/bin/xterm -e "$@" || "$@"
-		}
-		
 		# run as tcuser
 		TCUSER=$(cat /etc/sysconfig/tcuser)
-		[ -n "$TCUSER" ] && sudo -u "$TCUSER" /bin/sh <<EOD
+		[ -n "$TCUSER" ] && sudo -u "$TCUSER" /bin/sh <<'EOD'
+		    cliorx() {
+		        [ "$DISPLAY" ] && /usr/local/bin/xterm -T plan9-install -e "$@" || "$@"
+		    }
+		
 		    # If PLAN9 has already been set, exit
 		    [ -n "$PLAN9" ] && exit
 
