@@ -33,10 +33,6 @@ Make:	LOC=plan9port/usr/local
 		# run as tcuser
 		TCUSER=$(cat /etc/sysconfig/tcuser)
 		[ -n "$TCUSER" ] && sudo -u "$TCUSER" /bin/sh <<'EOD'
-		    cliorx() {
-		        [ "$DISPLAY" ] && /usr/local/bin/xterm -T plan9-install -e "$@" || "$@"
-		    }
-		
 		    # If PLAN9 has already been set, exit
 		    [ -n "$PLAN9" ] && exit
 
@@ -44,8 +40,10 @@ Make:	LOC=plan9port/usr/local
 		    tce-load -i plan9-local >/dev/null && exit
 		    tce-load -i plan9 >/dev/null && exit
 
-		    # or create a new one
-		    cliorx sh -c 'plan9-install.sh && tce-load -i plan9 || read'
+		    # or we could create a new one, but we don't
+		    # because long running tce.installed scripts
+		    # are not handled well by the Apps GUI
+		    #plan9-install.sh && tce-load -i plan9
 		EOD
 	EODD
 	chmod +x "$TCI"/plan9port "$BIN"/plan9-install.sh
