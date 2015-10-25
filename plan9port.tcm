@@ -29,7 +29,11 @@ Make:	LOC=plan9port/usr/local
 	cp plan9port-tc-master/plan9-install.sh "$BIN"
 	cat > "$TCI"/plan9port <<-'EODD'
 		#!/bin/sh
-
+		
+		cliorx() {
+		    [ "$DISPLAY" ] && /usr/local/bin/xterm -e "$@" || "$@"
+		}
+		
 		# run as tcuser
 		TCUSER=$(cat /etc/sysconfig/tcuser)
 		[ -n "$TCUSER" ] && sudo -u "$TCUSER" /bin/sh <<EOD
@@ -40,8 +44,8 @@ Make:	LOC=plan9port/usr/local
 		    tce-load -i plan9-local >/dev/null && exit
 		    tce-load -i plan9 >/dev/null && exit
 
-		    # or we could create a new one, but we don't
-		    #plan9-install.sh && tce-load -i plan9
+		    # or create a new one
+		    cliorx sh -c 'plan9-install.sh && tce-load -i plan9 || read'
 		EOD
 	EODD
 	chmod +x "$TCI"/plan9port "$BIN"/plan9-install.sh
